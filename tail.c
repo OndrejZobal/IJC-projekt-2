@@ -8,13 +8,12 @@
 
 struct params {
     int lines;
-    char* file;
+    char *file;
 };
 
 void memoryError(){
     fprintf(stderr, "%s: Nelze alokovat paměť na hromadě!\n", MODULE_NAME);
     exit(1);
-
 }
 
 struct params *processArgs(int argc, char **argv) {
@@ -79,20 +78,28 @@ FILE *tryOpenFile(const char *path) {
 
 void printLastLines(struct params *param, FILE *file) {
     int linesIndex = 0;
-    int length;
+    int length = 0;
 
     // Alocate buffer for lines.
-    char **lastLines = malloc(sizeof(char) * param->lines);
+    char **lastLines = malloc(sizeof(char*) * param->lines);
     size_t *lastLinesLength = malloc(sizeof(size_t) * param->lines);
+    if (lastLines == NULL || lastLinesLength == NULL) {
+        memoryError();
+    }
+
     // ALlocating space for individual strings.
     for (int i = 0; i < param->lines; i++) {
         lastLines[i] = malloc(sizeof(char) * LINE_LENGTH_LIMIT);
+        if (lastLines[i] == NULL) {
+            memoryError();
+        }
         lastLines[i][0] = '\0';
+
         lastLinesLength[i] = LINE_LENGTH_LIMIT;
     }
 
     // Iterating through file and storing last few lines in a cyclical buffer.
-    while ((length = getline(&(lastLines[linesIndex]), &(lastLinesLength[linesIndex]), file)) != -1) {
+    while ((length = getline(lastLines + linesIndex, lastLinesLength + linesIndex, file)) != -1) {
         linesIndex++;
         if (linesIndex == param->lines) {
             linesIndex = 0;
@@ -108,11 +115,11 @@ void printLastLines(struct params *param, FILE *file) {
     }
 
     // Cleanup
-    // for (int i = 0; i < param->lines; i++) {
-    //     free(lastLines[i]);
-    // }
-    // free(lastLines);
-    // free(lastLinesLength);
+    for (int i = 0; i < param->lines; i++) {
+        free(lastLines[i]);
+    }
+    free(lastLines);
+    free(lastLinesLength);
 }
 
 int main(int argc, char **argv) {
@@ -121,7 +128,8 @@ int main(int argc, char **argv) {
     FILE *file = tryOpenFile(param->file);
 
     printLastLines(param, file);
-    free(file);
+
     // No need to free the string, because it points to argv.
     free(param);
+    fclose(file);
 }
