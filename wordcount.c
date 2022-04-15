@@ -1,3 +1,8 @@
+// 2) wordcount.c
+// Ondřej Zobal (xzobal01)
+// FIT VUT v Brně
+// 15.4.2022
+
 #include "htab.h"
 #include "io.h"
 #include <stdio.h>
@@ -25,14 +30,7 @@ int main() {
         htab_lookup_add(htab, word)->value++;
     }
 
-
     htab_for_each(htab, &print_pair);
-    printf("-----------\n");
-
-    htab_resize(htab, 1);
-
-    htab_for_each(htab, &print_pair);
-    printf("-----------\n");
 
     htab_free(htab);
     free(word);

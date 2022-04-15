@@ -1,3 +1,8 @@
+// 2) htab_hash_function.c
+// Ondřej Zobal (xzobal01)
+// FIT VUT v Brně
+// 15.4.2022
+
 #include <stdint.h>
 #include "htab.h"
 

@@ -1,3 +1,8 @@
+// 2) htab.h
+// Ondřej Zobal (xzobal01)
+// FIT VUT v Brně
+// 15.4.2022
+
 // htab.h -- rozhraní knihovny htab (řešení IJC-DU2)
 // Licence: žádná (Public domain)
 
