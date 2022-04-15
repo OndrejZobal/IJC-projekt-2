@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define MODULE_NAME "tail"
 #define LINES_DEFAULT 10
-#define LINE_LENGTH_LIMIT 4095
+#define LINE_LENGTH_LIMIT 4096
 
 struct params {
     int lines;
@@ -78,12 +79,10 @@ FILE *tryOpenFile(const char *path) {
 
 void printLastLines(struct params *param, FILE *file) {
     int linesIndex = 0;
-    int length = 0;
 
     // Alocate buffer for lines.
     char **lastLines = malloc(sizeof(char*) * param->lines);
-    size_t *lastLinesLength = malloc(sizeof(size_t) * param->lines);
-    if (lastLines == NULL || lastLinesLength == NULL) {
+    if (lastLines == NULL) {
         memoryError();
     }
 
@@ -94,12 +93,40 @@ void printLastLines(struct params *param, FILE *file) {
             memoryError();
         }
         lastLines[i][0] = '\0';
-
-        lastLinesLength[i] = LINE_LENGTH_LIMIT;
     }
 
-    // Iterating through file and storing last few lines in a cyclical buffer.
-    while ((length = getline(lastLines + linesIndex, lastLinesLength + linesIndex, file)) != -1) {
+    bool cutLineWarn = false;
+    // iterating through file and storing last few lines in a cyclical buffer.
+    while ((fgets(lastLines[linesIndex], LINE_LENGTH_LIMIT, file)) != NULL) {
+        // check if string contains \n
+        bool whole = false;
+        for(int j = 0; j < LINE_LENGTH_LIMIT; j++) {
+            if (lastLines[linesIndex][j] == '\0') {
+                lastLines[linesIndex][j-1] = '\n';
+                break;
+            }
+            if(lastLines[linesIndex][j] == '\n') {
+                whole = true;
+                break;
+            }
+        }
+
+        // If the line wanst read in full, jump to the next line
+        if (!whole) {
+            if(!cutLineWarn) {
+                fprintf(stderr, "%s: Some lines in this file exceed limit of %d and will be cut!\n",
+                        MODULE_NAME, LINE_LENGTH_LIMIT);
+                cutLineWarn = true;
+            }
+            int c = 0;
+            while ((c = fgetc(file)) != EOF) {
+                if(c == '\n'){
+                    break;
+                }
+            }
+        }
+
+
         linesIndex++;
         if (linesIndex == param->lines) {
             linesIndex = 0;
@@ -119,7 +146,6 @@ void printLastLines(struct params *param, FILE *file) {
         free(lastLines[i]);
     }
     free(lastLines);
-    free(lastLinesLength);
 }
 
 int main(int argc, char **argv) {

@@ -9,7 +9,7 @@ htab_pair_t *htab_find(htab_t * t, htab_key_t key) {
     htab_item_t *items = t->arr_ptr[hash % t->arr_size];
     // Itarating through the list.
     while(items != NULL) {
-        if(!strcmp(items->pair->key, key)) {
+        if(!strcmp(items->pair.key, key)) {
             return &items->pair;
         }
         items = items->next;

@@ -16,7 +16,7 @@ htab_t *htab_init(size_t n) {
     newHtab->arr_size = n;
     // All pointers in array will be NULL thanks to calloc.
     newHtab->arr_ptr = calloc(sizeof(htab_pair_t**), n);
-    if (newHtab.arr_ptr == NULL) {
+    if (newHtab->arr_ptr == NULL) {
         fprintf(stderr, "Memory error");
         exit(1);
     }
