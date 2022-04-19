@@ -9,6 +9,16 @@
 
 #include <stdio.h>
 
+
+#define AVG_LEN_MAX 3
+
+void htab_la_check_for_resize(htab_t *t) {
+    if (t->size / t->arr_size > AVG_LEN_MAX){
+        printf("resize\n");
+        htab_resize(t, t->size*2);
+    }
+}
+
 htab_pair_t *htab_lookup_add(htab_t * t, htab_key_t key) {
     // Computing hash
     size_t hash = htab_hash_function(key);
@@ -50,6 +60,11 @@ htab_pair_t *htab_lookup_add(htab_t * t, htab_key_t key) {
     }
     else {
         t->arr_ptr[hash % t->arr_size] = newItem;
+    }
+
+    // Resize if smol.
+    if (t->size / t->arr_size > AVG_LEN_MAX){
+        htab_resize(t, t->size*2);
     }
 
     return &newItem->pair;

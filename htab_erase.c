@@ -8,6 +8,8 @@
 #include "htab_item_t.h"
 #include <stdbool.h>
 
+#define AVG_LEN_MIN 0.5
+
 bool htab_erase(htab_t * t, htab_key_t key) {
     // Computing hash
     size_t hash = htab_hash_function(key);
@@ -29,6 +31,9 @@ bool htab_erase(htab_t * t, htab_key_t key) {
             free(items);
             t->size--;
 
+            if (t->size / t->arr_size < AVG_LEN_MIN){
+                htab_resize(t, t->size/2);
+            }
             return true;
         }
         prev = items;

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define HTAB_SIZE 1000
+#define HTAB_SIZE 5
 #define LINE_LIMIT 127
 
 void print_pair(htab_pair_t *data) {
